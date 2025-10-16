@@ -1,0 +1,26 @@
+@import "../scss/_base";
+
+.sectionBox {
+  @include section-box;
+}
+
+.sectionTitle {
+  @include section-title;
+}
+
+.blink {
+  @include blink-animation;
+}
+
+.link {
+  @include link-style;
+}
+
+.contactNote {
+  font-size: 0.9rem;
+  color: $color-text-light;
+}
+
+.sectionTitleContact {
+  @include section-title-pixel;
+}

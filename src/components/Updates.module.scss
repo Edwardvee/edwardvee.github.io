@@ -1,0 +1,23 @@
+@import "../scss/_base";
+
+.sectionBox {
+  @include section-box;
+}
+
+.sectionTitle {
+  @include section-title;
+}
+
+.blink {
+  @include blink-animation;
+}
+
+.updatesList {
+  padding-left: $spacing-lg;
+  color: $color-text;
+  font-size: 1em;
+}
+
+.sectionTitleUpdates {
+  @include section-title-terminal;
+}

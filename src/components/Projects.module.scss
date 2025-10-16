@@ -1,0 +1,24 @@
+@import "../scss/_base";
+
+.sectionBox {
+  @include section-box;
+}
+
+.sectionTitle {
+  @include section-title;
+}
+
+.blink {
+  @include blink-animation;
+}
+
+.projectsList {
+  text-align: left;
+  margin: $spacing-md auto;
+  max-width: 400px;
+  color: $color-text;
+}
+
+.sectionTitleProjects {
+  @include section-title;
+}

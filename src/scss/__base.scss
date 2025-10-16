@@ -1,0 +1,385 @@
+// Fuentes
+$font: "MS Gothic";
+$fontUI: "MS UI Gothic";
+
+// Colores principales
+$color-primary: #a29574;
+$color-secondary: #b3a580;
+$color-tertiary: #b7c68b;
+$color-background: #f4f0cb;
+$color-section-bg: #ded29e;
+$color-text: #a29574;
+$color-text-light: #b3a580;
+$color-hover: #f4f0cb;
+
+// Dimensiones
+$border-radius-small: 8px;
+$border-radius-medium: 12px;
+$border-radius-large: 16px;
+$border-radius-xl: 18px;
+$border-radius-xxl: 22px;
+
+$border-width-thin: 2px;
+$border-width-medium: 2.5px;
+$border-width-thick: 4px;
+$border-width-double: 5px;
+
+// Espaciado
+$spacing-xs: 0.3rem;
+$spacing-sm: 0.5rem;
+$spacing-md: 1rem;
+$spacing-lg: 1.2rem;
+$spacing-xl: 1.5rem;
+$spacing-xxl: 2rem;
+
+// Sombras
+$shadow-light: 0 0 6px $color-secondary;
+$shadow-medium: 0 0 12px $color-secondary;
+$shadow-heavy: 0 0 18px $color-tertiary;
+$shadow-inset: 0 0 8px $color-section-bg inset;
+
+// Text shadows
+$text-shadow-glow: 0 0 6px $color-background;
+$text-shadow-white: 0 0 2px #fff, 0 0 8px $color-background;
+
+// Transiciones
+$transition-fast: 0.2s;
+$transition-medium: 0.3s;
+
+// Mixins comunes
+@mixin section-box {
+  background: $color-section-bg;
+  border: 2px inset $color-primary;
+  border-radius: 0; // Sin bordes redondeados
+  margin: $spacing-xl auto;
+  padding: $spacing-lg $spacing-md;
+  max-width: 600px;
+  text-align: left;
+  box-shadow: $retro-shadow-inset-3d;
+  position: relative;
+
+  // Patrón de puntos retro en el fondo
+  background-image: radial-gradient(circle at 1px 1px, rgba(163, 149, 116, 0.1) 1px, transparent 0);
+  background-size: 10px 10px;
+}
+
+@mixin section-title {
+  position: relative;
+  display: inline-block;
+  color: $color-primary;
+  font-size: 1.4rem;
+  margin-bottom: 1.2rem;
+  font-family: $font, monospace;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding: 8px 16px;
+
+  // Fondo estilo "etiqueta" retro
+  background: linear-gradient(145deg,
+      lighten($color-tertiary, 15%),
+      $color-tertiary,
+      darken($color-tertiary, 10%));
+  border: 2px outset $color-secondary;
+  border-radius: 0;
+
+  // Sombra retro 3D
+  box-shadow:
+    3px 3px 0px darken($color-secondary, 15%),
+    6px 6px 0px darken($color-secondary, 25%),
+    inset 1px 1px 0px rgba(255, 255, 255, 0.4);
+
+  // Texto con efecto "grabado"
+  text-shadow:
+    1px 1px 0px rgba(255, 255, 255, 0.6),
+    -1px -1px 0px rgba(0, 0, 0, 0.3);
+
+  // Decoración con "LEDs" en las esquinas
+  &::before {
+    content: "●";
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    color: #ff0000;
+    font-size: 8px;
+    animation: blink 1.5s infinite;
+  }
+
+  &::after {
+    content: "●";
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    color: #00ff00;
+    font-size: 8px;
+    animation: blink 2s infinite;
+  }
+
+  // Efecto hover
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      4px 4px 0px darken($color-secondary, 15%),
+      7px 7px 0px darken($color-secondary, 25%),
+      inset 1px 1px 0px rgba(255, 255, 255, 0.4);
+  }
+}
+
+@mixin blink-animation {
+  animation: blink 1s steps(2, start) infinite;
+  color: $color-secondary;
+  font-weight: bold;
+}
+
+@mixin link-style {
+  color: $color-primary;
+  text-decoration: underline wavy $color-tertiary;
+  transition: color $transition-fast, background $transition-fast;
+  font-family: $font, sans-serif;
+
+  &:hover {
+    color: $color-hover;
+    background: $color-secondary;
+  }
+}
+
+// Elementos retro adicionales
+$retro-border-style: ridge;
+$retro-border-width: 3px;
+$retro-shadow-3d: 2px 2px 0px darken($color-secondary, 10%),
+  4px 4px 0px darken($color-secondary, 20%);
+$retro-shadow-inset-3d: inset 2px 2px 4px darken($color-section-bg, 15%),
+  inset -2px -2px 4px lighten($color-section-bg, 10%);
+
+// Mixins retro
+@mixin retro-border {
+  border: $retro-border-width $retro-border-style $color-secondary;
+  box-shadow: $retro-shadow-3d;
+}
+
+@mixin retro-button {
+  background: linear-gradient(145deg, lighten($color-tertiary, 10%), darken($color-tertiary, 10%));
+  border: 2px outset $color-secondary;
+  padding: 4px 12px;
+  font-family: $font, monospace;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+
+  &:hover {
+    background: linear-gradient(145deg, lighten($color-tertiary, 15%), darken($color-tertiary, 5%));
+  }
+
+  &:active {
+    border: 2px inset $color-secondary;
+    background: linear-gradient(145deg, darken($color-tertiary, 5%), lighten($color-tertiary, 5%));
+  }
+}
+
+@mixin retro-window {
+  background: $color-section-bg;
+  border: 2px outset $color-secondary;
+  box-shadow: $retro-shadow-inset-3d;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 20px;
+    background: linear-gradient(90deg, $color-secondary, lighten($color-secondary, 20%), $color-secondary);
+    border-bottom: 1px solid darken($color-secondary, 10%);
+  }
+}
+
+@mixin pixel-border {
+  border-image: url("data:image/svg+xml,%3csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='m0,0 l0,8 l8,0 l0,8 l8,0 l0,76 l-8,0 l0,8 l-8,0 l0,8 l84,0 l0,-8 l8,0 l0,-8 l8,0 l0,-76 l-8,0 l0,-8 l-8,0 l0,-8 z' fill='%23a29574'/%3e%3c/svg%3e") 8;
+}
+
+@mixin crt-effect {
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.03) 2px,
+        rgba(0, 0, 0, 0.03) 4px);
+    pointer-events: none;
+  }
+}
+
+// Keyframes comunes
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes rainbow-text {
+  0% {
+    color: #ff0000;
+  }
+
+  16% {
+    color: #ff8000;
+  }
+
+  33% {
+    color: #ffff00;
+  }
+
+  50% {
+    color: #00ff00;
+  }
+
+  66% {
+    color: #0080ff;
+  }
+
+  83% {
+    color: #8000ff;
+  }
+
+  100% {
+    color: #ff0000;
+  }
+}
+
+@keyframes glitch {
+  0% {
+    transform: translate(0);
+  }
+
+  20% {
+    transform: translate(-2px, 2px);
+  }
+
+  40% {
+    transform: translate(-2px, -2px);
+  }
+
+  60% {
+    transform: translate(2px, 2px);
+  }
+
+  80% {
+    transform: translate(2px, -2px);
+  }
+
+  100% {
+    transform: translate(0);
+  }
+}
+
+// Variación de título con borde pixelado
+@mixin section-title-pixel {
+  @include section-title;
+
+  // Borde pixelado estilo 8-bit
+  border-image: url("data:image/svg+xml,%3csvg width='12' height='12' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M0,0 L0,4 L4,4 L4,8 L8,8 L8,12 L12,12 L12,8 L8,8 L8,4 L4,4 L4,0 Z' fill='%23a29574'/%3e%3c/svg%3e") 4;
+  border-width: 4px;
+  border-style: solid;
+}
+
+// Variación de título con efecto "terminal"
+@mixin section-title-terminal {
+  position: relative;
+  display: inline-block;
+  color: #00ff00;
+  background: #000;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  padding: 10px 20px;
+  border: 2px solid #00ff00;
+
+  // Efecto de "escaneo" de terminal
+  &::before {
+    content: "> ";
+    color: #ffff00;
+  }
+
+  &::after {
+    content: "_";
+    animation: blink 1s infinite;
+    color: #00ff00;
+  }
+}
+
+// Variación de título con "etiqueta adhesiva"
+@mixin section-title-sticker {
+  position: relative;
+  display: inline-block;
+  color: $color-text;
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  font-family: $font, sans-serif;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 12px 20px;
+
+  // Fondo de etiqueta adhesiva
+  background: linear-gradient(135deg, #ffff99, #ffff66, #ffcc00);
+  border: 2px solid #cc9900;
+  border-radius: 0;
+  transform: rotate(-2deg);
+
+  // Sombra de etiqueta "pegada"
+  box-shadow:
+    2px 2px 4px rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0px rgba(0, 0, 0, 0.1),
+    inset 1px 1px 0px rgba(255, 255, 255, 0.8);
+
+  // Texto con sombra
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.2);
+
+  // Esquina "doblada"
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-left: 8px solid #cc9900;
+    border-top: 8px solid transparent;
+  }
+}
+
+// Cla
+ses específicas para diferentes tipos de títulos .sectionTitleAbout {
+  @include section-title-sticker;
+}
+
+.sectionTitleProjects {
+  @include section-title;
+}
+
+.sectionTitleUpdates {
+  @include section-title-terminal;
+}
+
+.sectionTitleContact {
+  @include section-title-pixel;
+}

@@ -1,0 +1,13 @@
+@import "../scss/_base";
+
+.stampsBox {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  justify-content: center;
+  margin: $spacing-xl 0 $spacing-sm 0;
+}
+
+.stampImg {
+  height: 32px;
+}
