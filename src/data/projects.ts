@@ -8,6 +8,14 @@
 // 4. Modify technologies array with your tech stack
 // 5. Change status to reflect current project state
 
+import {
+  instantThumbnail,
+  networkThumbnail,
+  gameThumbnail,
+  portfolioThumbnail,
+  cattusThumbnail
+} from '../assets';
+
 export interface Project {
   id: string;                    // Unique identifier (lowercase, no spaces)
   title: string;                 // Project display name
@@ -31,7 +39,7 @@ export const projects: Project[] = [
     description: "A modern web application to manage restaurants.",
     technologies: ["Vite", "React", "Typescript", "SCSS", "Supabase", "Docker", "Websockets"],
     status: "in-progress",
-    image: "src/assets/project-thumbnails/instant.jpg",
+    image: instantThumbnail,
     githubUrl: "https://github.com/Edwardvee/instant-coffee/tree/feat/client-menu",
     details: `User authentication with Supabase Auth
     Customer panel for placing orders and managing accounts
@@ -49,7 +57,7 @@ export const projects: Project[] = [
     description: "A network sniffer made for my 2025 internship at CodeAlpha",
     technologies: ["Python", "sockets", "textual"],
     status: "in-progress",
-    image: "src/assets/project-thumbnails/network.jpg",
+    image: networkThumbnail,
     githubUrl: "https://github.com/Edwardvee/CodeAlpha_NetworkSniffer",
     details: "A simple network sniffer that operates at the network layer, it decodes the raw bytes of the stream packets and decodes it in ascii format. It currently decodes IP/TCP, IP/ICMP and IP/UDP"
   },
@@ -60,7 +68,7 @@ export const projects: Project[] = [
     description: "My lastest attempt of game development",
     technologies: ["lua", "Love2D"],
     status: "in-progress",
-    image: "src/assets/project-thumbnails/game.jpg",
+    image: gameThumbnail,
     githubUrl: "https://github.com/Edwardvee/CodeAlpha_NetworkSniffer",
     details: "In this project in coordinating a young team which skills will be completly forged here, we currently don't even have a proper name, but in not so much we will make it a reality."
   },
@@ -71,7 +79,7 @@ export const projects: Project[] = [
     description: "A site made from scratch, made to resemble old 00's sites and its shenanigans",
     technologies: ["React", "TypeScript", "SCSS", "Vite"],
     status: "completed",
-    image: "src/assets/project-thumbnails/portfolio.jpg",
+    image: portfolioThumbnail,
     githubUrl: "https://github.com/Edwardvee/portfolio", // 🔗 Replace with your repo
     details: "This portfolio website was made to showcase my work through the years, I followed old design principles and aesthetics. I hope this helps prevail my efforts of creating and designing software, and also as something to look back every once in a while."
   },
@@ -82,7 +90,7 @@ export const projects: Project[] = [
     description: "A comic/manga site made in 2022 for a school project",
     technologies: ["PHP", "JS", "CSS", "Bootstrap", "MySQL"],
     status: "completed",
-    image: "src/assets/project-thumbnails/CattusmangaLogo.png",
+    image: cattusThumbnail,
     githubUrl: "https://github.com/Edwardvee/cattusmanga_plus",
     details: "My 2022 school project. A manga website that would include a membership system. It includes some basic SQL and PHP CRUD, user moderation/management/administration tab, pointshop, customizable profiles, comment section, upload your own mangas tab, dark/light mode, cookies, and a great frontend made with js and bootstrap. This was a project I made to run locally and had no intention in making it larger or scale it, so keep in mind that it may not be optimized correctly for a larger userbase.."
   },

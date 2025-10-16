@@ -13,9 +13,10 @@ import Stamps from "./components/Stamps";
 import Updates from "./components/Updates";
 import MusicPlayer from "./components/MusicPlayer";
 import { musicConfig } from "./data/music";
+import { banner } from "./assets";
 
 // You can change these links to your own gifs or banners
-const bannerUrl = "src/assets/banner.jpg";
+const bannerUrl = banner;
 
 const AppContent = () => {
   const [hovered, setHovered] = React.useState<string | null>(null);
