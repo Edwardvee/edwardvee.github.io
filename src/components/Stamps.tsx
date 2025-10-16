@@ -1,4 +1,3 @@
-import React from "react";
 import styles from "./Stamps.module.scss";
 
 const blinkieUrl = "/zzz.gif";

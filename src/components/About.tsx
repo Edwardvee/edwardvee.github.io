@@ -1,6 +1,6 @@
 import { useState } from "react";
-import styles from "./About.module.scss";
 import appStyles from "../App.module.scss";
+import styles from "./About.module.scss";
 
 const blinkieUrl = "/zzz.gif";
 
@@ -53,7 +53,7 @@ const About = () => {
           <button
             className={appStyles.retroButton}
             onClick={() => {
-              //setShowAbout(!showAbout);
+              setShowAbout(!showAbout);
             }}
           >
             {showAbout ? "◄ HIDE" : "► MORE INFO"}
