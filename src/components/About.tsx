@@ -17,7 +17,7 @@ const About = () => {
     Nintendo3DS: {
       image: "/consolas/nintendo3ds-apagada.png",
       image2: "/consolas/nintendo3ds-prendida.png",
-      text: "Mi historia",
+      text: "My Story",
     },
     GameboyAdvanced: {
       image: "/consolas/gameboyAdvanced.png",
@@ -36,27 +36,29 @@ const About = () => {
   return (
     <section id="about" className={styles.sectionBox}>
       <h2 className={styles.sectionTitleAbout}>
-        Sobre mí{" "}
+        About Me{" "}
         <img src={blinkieUrl} alt="blinkie" className={styles.blinkie} />
       </h2>
       <p>
-        ¡Hola! Soy <b>Iván Quiroga</b> <span className={styles.blink}>★</span>.
+        Hello! I'm <b>Iván Quiroga</b> <span className={styles.blink}>★</span>.
         <br />
-        Soy desarrollador un web, fiel, devoto y practicante de mi unica
-        religión: TypeScript y sus librerias .
+        I'm a web developer, faithful, devoted and practitioner of my only
+        religion: TypeScript and its libraries.
+        Recently I've been exploring the cyberSec world, so I hope to make noticiable progress regarding said subject. One day the world will know me, and everyone will recognize me as a well formed Hacker, and hopefully also a talented exploiter.
+
         <br />
-        Por acá voy a estar subiendo proyectos, pensamientos y curiosidades.
+        Here I'll be uploading projects, thoughts and curiosities.
         <br />
-        <span className={styles.aboutNote}>
+        <span className={styles.aboutNote} style={{ display: "none" }}>
           <button
             className={appStyles.retroButton}
             onClick={() => {
-              setShowAbout(!showAbout);
+              //setShowAbout(!showAbout);
             }}
           >
-            {showAbout ? "◄ OCULTAR" : "► MÁS INFO"}
+            {showAbout ? "◄ HIDE" : "► MORE INFO"}
           </button>{" "}
-          si te interesa más de mi persona{" "}
+          if you're interested in learning more about me{" "}
         </span>
 
         <div className={appStyles.retroDecoration}></div>

@@ -11,32 +11,58 @@ import Contact from "./components/Contact";
 import Projects from "./components/Projects";
 import Stamps from "./components/Stamps";
 import Updates from "./components/Updates";
+import MusicPlayer from "./components/MusicPlayer";
+import { musicConfig } from "./data/music";
 
-// Puedes cambiar estos links por tus propios gifs o banners
-const bannerUrl = "banner.jpg";
+// You can change these links to your own gifs or banners
+const bannerUrl = "src/assets/banner.jpg";
 
 const AppContent = () => {
   const [hovered, setHovered] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
+  const [isMusicPlaying, setIsMusicPlaying] = React.useState(false);
   const navigate = useNavigate();
+
+  // Load saved music state from localStorage (but don't auto-play)
+  React.useEffect(() => {
+    if (musicConfig.storage.rememberState) {
+      const savedState = localStorage.getItem(`${musicConfig.storage.storageKey}-playing`);
+      // Only remember the OFF state, never auto-start music
+      if (savedState === "false") {
+        setIsMusicPlaying(false);
+      }
+      // Always start in OFF state for better UX
+    }
+  }, []);
+
+  // Save music state to localStorage
+  React.useEffect(() => {
+    if (musicConfig.storage.rememberState) {
+      localStorage.setItem(`${musicConfig.storage.storageKey}-playing`, isMusicPlaying.toString());
+    }
+  }, [isMusicPlaying]);
+
+  const toggleMusic = () => {
+    setIsMusicPlaying(!isMusicPlaying);
+  };
 
   const navItems = [
     { path: "/", label: "About" },
-    { path: "/projects", label: "Proyectos" },
+    { path: "/projects", label: "Projects" },
     { path: "/updates", label: "Updates" },
-    { path: "/contact", label: "Contacto" },
+    { path: "/contact", label: "Contact" },
   ];
 
   return (
     <div className={styles.retroBg}>
       {/* Banner superior */}
       <div className={styles.bannerContainer}>
-        <img src={bannerUrl} alt="Banner retro" className={styles.bannerImg} />
+        <img src={bannerUrl} alt="Retro Banner" className={styles.bannerImg} />
       </div>
       {/* Marquee retro debajo del banner */}
       <div className={styles.marquee}>
         <span className={styles.marqueeInner}>
-          ★ ☆ ★ BIENVENIDO A MI PÁGINA PERSONAL ★ ☆ ★ ÚLTIMA ACTUALIZACIÓN: 2025 ★ ☆ ★
+          ★ ☆ ★ WELCOME TO MY PERSONAL WEBSITE ★ ☆ ★ LAST UPDATE: 2025 ★ ☆ ★
         </span>
       </div>
 
@@ -76,7 +102,7 @@ const AppContent = () => {
               <div className={styles.loadingContainer}>
                 <div className={styles.retroProgressBar}></div>
                 <p style={{ fontFamily: 'monospace', fontSize: '12px', marginTop: '10px' }}>
-                  CARGANDO CONTENIDO...
+                  LOADING CONTENT...
                 </p>
               </div>
             ) : (
@@ -101,7 +127,7 @@ const AppContent = () => {
       <footer className={styles.footer}>
         <hr className={styles.footerHr} />
         <span>
-          Siempre fuera de la norma | Inspirado en{" "}
+          Always outside the norm | Inspired by{" "}
           <a
             href="https://neocities.org/"
             target="_blank"
@@ -131,7 +157,7 @@ const AppContent = () => {
           © 2025 Iván Quiroga. <span style={{ fontSize: "1.2em" }}>★</span>{" "}
           <br />
           <span>
-            Créditos: gifs de{" "}
+            Credits: gifs from{" "}
             <a
               href="https://web.archive.org/"
               target="_blank"
@@ -143,8 +169,11 @@ const AppContent = () => {
           </span>
           <br />
           <div style={{ marginTop: '10px' }}>
-            <button className={`${styles.retroButton} ${styles.rainbow}`}>
-              ♪ MÚSICA ON ♪
+            <button
+              className={`${styles.retroButton} ${isMusicPlaying ? styles.rainbow : ''}`}
+              onClick={toggleMusic}
+            >
+              ♪ MUSIC {isMusicPlaying ? 'ON' : 'OFF'} ♪
             </button>
             <span style={{ margin: '0 10px', fontSize: '12px' }}>
               ◆ BEST VIEWED IN 1024x768 ◆
@@ -155,6 +184,9 @@ const AppContent = () => {
           </div>
         </div>
       </footer>
+
+      {/* Music Player Component */}
+      <MusicPlayer isPlaying={isMusicPlaying} onToggle={toggleMusic} />
     </div>
   );
 };
