@@ -117,6 +117,7 @@ const Projects = () => {
             <div className={styles.projectHeader}>
               <div className={styles.projectImage}>
                 <img src={selectedProject.image} alt={selectedProject.title} />
+                {console.log('Image src:', selectedProject.image)}
               </div>
               <div className={styles.projectInfo}>
                 <h3>{selectedProject.title}</h3>
