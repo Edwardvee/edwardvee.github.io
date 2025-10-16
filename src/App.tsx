@@ -14,7 +14,7 @@ import Updates from "./components/Updates";
 import MusicPlayer from "./components/MusicPlayer";
 import { musicConfig } from "./data/music";
 // You can change these links to your own gifs or banners
-const bannerUrl = "./assets/banner.jpg";
+const bannerUrl = "./banner.jpg";
 
 const AppContent = () => {
   const [hovered, setHovered] = React.useState<string | null>(null);
