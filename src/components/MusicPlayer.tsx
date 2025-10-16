@@ -44,7 +44,7 @@ const MusicPlayer = ({ isPlaying }: MusicPlayerProps) => {
         if (!audioRef.current) return;
 
         setCurrentTrack(track);
-        audioRef.current.src = `/music/${track.filename}`;
+        audioRef.current.src = `./music/${track.filename}`;
         audioRef.current.load();
         console.log(`Loading track: ${track.title}`);
     }, []);
