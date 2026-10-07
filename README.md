@@ -36,6 +36,16 @@ y `[enlaces](https://...)`.
   Para usar otra imagen: `node scripts/img2braille.mjs otra.jpg 64 src/data/tomoko.js`.
   Funciona mejor con fondo blanco liso; los colores se ajustan en `ANCHORS`.
 
+## Idiomas
+
+La web está en **español e inglés** y elige sola: usa el idioma del navegador del visitante
+(`es-*` → español, cualquier otro → inglés). Se puede cambiar con `:lang en` / `:lang es` o
+`Espacio` + `l`, y la elección se recuerda.
+
+- Contenido en español: [`src/data/portfolio.js`](src/data/portfolio.js)
+- Contenido en inglés: [`src/data/portfolio.en.js`](src/data/portfolio.en.js) — si cambias uno, actualiza el otro.
+- Textos de la interfaz: [`src/i18n.js`](src/i18n.js)
+
 ## Cómo se navega
 
 | Comando / tecla        | Acción                                  |

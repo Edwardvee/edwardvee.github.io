@@ -1,9 +1,11 @@
 import { X } from 'lucide-react'
+import { useT } from '../i18n'
 
 const VIDEO_ID = 'xKGs_Tw9ZMk'
 
 // ventana flotante (nvim_open_win) con un video de YouTube — :secret
 export default function SecretPlayer({ onClose }) {
+  const [or, toClose] = useT().secretClose
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-ctp-crust/70 p-3 backdrop-blur-[2px]" onMouseDown={onClose}>
       <div
@@ -29,7 +31,7 @@ export default function SecretPlayer({ onClose }) {
           />
         </div>
         <div className="mt-1.5 text-right text-[11px] text-ctp-overlay1">
-          <span className="text-ctp-peach">&lt;Esc&gt;</span> o <span className="text-ctp-peach">q</span> para cerrar
+          <span className="text-ctp-peach">&lt;Esc&gt;</span> {or} <span className="text-ctp-peach">q</span> {toClose}
         </div>
       </div>
     </div>

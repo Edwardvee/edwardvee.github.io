@@ -1,5 +1,6 @@
 import { GitBranch, Lock, ShieldCheck } from 'lucide-react'
 import { FileIcon } from './Icons'
+import { useT } from '../i18n'
 
 export const MODE_STYLE = {
   NORMAL: { bg: 'bg-ctp-blue', text: 'text-ctp-blue' },
@@ -20,6 +21,7 @@ function Sep({ from, to, dir = 'right' }) {
 
 // lualine.nvim
 export default function Statusline({ mode, buffer, cursor }) {
+  const t = useT()
   const label = mode === 'SEARCH' ? 'COMMAND' : mode
   const m = MODE_STYLE[mode] ?? MODE_STYLE.NORMAL
   const total = buffer?.lines.length ?? 0
@@ -41,8 +43,8 @@ export default function Statusline({ mode, buffer, cursor }) {
       <div className="flex min-w-0 items-center gap-1.5 px-2 text-ctp-subtext1">
         <FileIcon ft={ft} size={12} />
         <span className="truncate">{buffer ? buffer.path : 'dashboard'}</span>
-        {buffer && <Lock size={11} className="shrink-0 text-ctp-red" aria-label="solo lectura" />}
-        <span className="ml-2 hidden items-center gap-1 text-ctp-green md:flex" title="Diagnósticos">
+        {buffer && <Lock size={11} className="shrink-0 text-ctp-red" aria-label={t.readonlyAria} />}
+        <span className="ml-2 hidden items-center gap-1 text-ctp-green md:flex" title="diagnostics">
           <ShieldCheck size={12} /> 0 vulns
         </span>
       </div>

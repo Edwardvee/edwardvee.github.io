@@ -1,5 +1,8 @@
+import { useT } from '../i18n'
+
 // which-key.nvim
 export default function WhichKey({ node, path, onKey, onClose }) {
+  const t = useT()
   const entries = Object.entries(node.children)
   const crumbs = ['<leader>', ...path].join(' ')
   return (
@@ -24,10 +27,10 @@ export default function WhichKey({ node, path, onKey, onClose }) {
         <div className="mt-2 flex items-center justify-between border-t border-ctp-surface0 pt-1.5 text-[12px] text-ctp-overlay1">
           <span className="text-ctp-blue">{crumbs}</span>
           <span>
-            <span className="text-ctp-peach">&lt;esc&gt;</span> cerrar
+            <span className="text-ctp-peach">&lt;esc&gt;</span> {t.wkClose}
             {path.length > 0 && (
               <>
-                {' '}· <span className="text-ctp-peach">&lt;bs&gt;</span> atrás
+                {' '}· <span className="text-ctp-peach">&lt;bs&gt;</span> {t.wkBack}
               </>
             )}
           </span>

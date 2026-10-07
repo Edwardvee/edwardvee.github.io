@@ -1,4 +1,5 @@
 import { profile } from '../data/portfolio'
+import { useT } from '../i18n'
 import { TOMOKO_CHARS, TOMOKO_COLOR_MAP, TOMOKO_COLORS } from '../data/tomoko'
 
 const ROW_COLORS = ['text-ctp-mauve', 'text-ctp-mauve', 'text-ctp-lavender', 'text-ctp-blue', 'text-ctp-sapphire', 'text-ctp-teal']
@@ -26,12 +27,13 @@ function tomokoLine(chars, colors) {
 }
 
 function Tomoko() {
+  const t = useT()
   return (
     <div className="pointer-events-none absolute right-4 bottom-3 hidden flex-col items-start select-none xl:flex" aria-hidden>
       <div className="relative mb-2 ml-2 rounded-lg border border-ctp-surface1 bg-ctp-mantle px-2.5 py-1 text-[11px] leading-4 text-ctp-subtext0">
-        <span className="text-ctp-overlay1">tomoko:</span> e-eh…
+        <span className="text-ctp-overlay1">tomoko:</span> {t.tomoko[0]}
         <br />
-        ¿v-vas a contratarlo?
+        {t.tomoko[1]}
         <span className="absolute -bottom-1.5 left-24 size-2.5 rotate-45 border-r border-b border-ctp-surface1 bg-ctp-mantle" />
       </div>
       <pre className="text-[7px] leading-[1.1] whitespace-nowrap 2xl:text-[9px]">
@@ -45,6 +47,8 @@ function Tomoko() {
 
 // dashboard-nvim / alpha-nvim
 export default function Dashboard({ items, sel, setSel, onRun, startupMs, showCursor }) {
+  const t = useT()
+  const [p1, n, p2, ms] = t.plugins(items.length + 4, `${startupMs.toFixed(2)}ms`)
   return (
     <div className="relative flex flex-1 overflow-y-auto">
       <Tomoko />
@@ -92,12 +96,12 @@ export default function Dashboard({ items, sel, setSel, onRun, startupMs, showCu
 
         <div className="mt-8 text-center text-[12px] leading-5 text-ctp-overlay1">
           <div>
-            <span className="text-ctp-yellow">⚡</span> Neovim cargó <span className="text-ctp-peach">{items.length + 4}</span> plugins en{' '}
-            <span className="text-ctp-peach">{startupMs.toFixed(2)}ms</span>
+            <span className="text-ctp-yellow">⚡</span> {p1}<span className="text-ctp-peach">{n}</span>{p2}
+            <span className="text-ctp-peach">{ms}</span>
           </div>
-          <div className="mt-3 italic text-ctp-overlay0">“La seguridad es un proceso, no un producto.” — Bruce Schneier</div>
+          <div className="mt-3 italic text-ctp-overlay0">{t.quote}</div>
           <div className="mt-5 text-ctp-overlay0">
-            <span className="text-ctp-subtext0">¿No usas Vim?</span> Haz click en cualquier opción, o escribe{' '}
+            <span className="text-ctp-subtext0">{t.noVim}</span> {t.noVimHint}{' '}
             <span className="text-ctp-peach">:help</span>
           </div>
         </div>

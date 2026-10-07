@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { ChevronDown, ChevronRight } from 'lucide-react'
 import { FileIcon, FolderIcon } from './Icons'
 import { projects } from '../data/portfolio'
+import { useT } from '../i18n'
 
 // neo-tree.nvim
 export default function Sidebar({ buffers, current, onOpen, onClose, handle }) {
+  const t = useT()
   const [projectsOpen, setProjectsOpen] = useState(true)
   const files = Object.values(buffers)
     .filter((b) => !b.id.startsWith('projects/'))
@@ -73,10 +75,10 @@ export default function Sidebar({ buffers, current, onOpen, onClose, handle }) {
         </div>
         <div className="shrink-0 border-t border-ctp-crust px-3 py-2 text-[11px] leading-5 text-ctp-overlay0">
           <div>
-            <span className="text-ctp-peach">&lt;CR&gt;</span> abrir · <span className="text-ctp-peach">&lt;C-n&gt;</span> cerrar
+            <span className="text-ctp-peach">&lt;CR&gt;</span> {t.sidebarOpen} · <span className="text-ctp-peach">&lt;C-n&gt;</span> {t.sidebarClose}
           </div>
           <div>
-            <span className="font-bold text-ctp-yellow">M</span> = proyecto en curso
+            <span className="font-bold text-ctp-yellow">M</span> {t.sidebarModified}
           </div>
         </div>
       </aside>

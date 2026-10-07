@@ -4,25 +4,26 @@ export const FLAVORS = ['mocha', 'macchiato', 'frappe', 'latte']
 
 // Comandos visibles en el autocompletado (los easter eggs no aparecen aquí 😉)
 export const COMMANDS = [
-  { name: 'about', desc: 'Quién soy', aliases: ['sobre', 'whoami'] },
-  { name: 'experience', desc: 'Experiencia laboral', aliases: ['experiencia', 'exp', 'work', 'log'] },
-  { name: 'projects', desc: 'Lista de proyectos', aliases: ['proyectos'] },
-  { name: 'skills', desc: 'Habilidades técnicas', aliases: ['habilidades'] },
-  { name: 'certs', desc: 'Formación y certificaciones', aliases: ['education', 'formacion'] },
-  { name: 'contact', desc: 'Contacto', aliases: ['contacto'] },
-  { name: 'help', desc: 'Ayuda y atajos', aliases: ['h', 'ayuda'] },
-  { name: 'edit', desc: 'Abrir archivo · :e <ruta>', aliases: ['e'], arg: 'file' },
-  { name: 'Telescope', desc: 'Buscador difuso de archivos', aliases: ['find', 'ff'] },
-  { name: 'Neotree', desc: 'Mostrar / ocultar explorador', aliases: ['tree', 'Ex', 'NvimTreeToggle'] },
-  { name: 'colorscheme', desc: 'Cambiar sabor de catppuccin', aliases: ['colo'], arg: 'flavor' },
-  { name: 'set', desc: 'number · relativenumber · wrap', arg: 'option' },
-  { name: 'bnext', desc: 'Buffer siguiente', aliases: ['bn'] },
-  { name: 'bprevious', desc: 'Buffer anterior', aliases: ['bp'] },
-  { name: 'bdelete', desc: 'Cerrar buffer', aliases: ['bd'] },
-  { name: 'cv', desc: 'Descargar el CV', aliases: ['resume'] },
-  { name: 'nohlsearch', desc: 'Quitar resaltado de búsqueda', aliases: ['noh'] },
-  { name: 'Dashboard', desc: 'Pantalla de inicio', aliases: ['home', 'inicio', 'Alpha'] },
-  { name: 'quit', desc: 'Cerrar buffer actual', aliases: ['q'] },
+  { name: 'about', desc: ['Quién soy', 'Who I am'], aliases: ['sobre', 'whoami'] },
+  { name: 'experience', desc: ['Experiencia laboral', 'Work experience'], aliases: ['experiencia', 'exp', 'work', 'log'] },
+  { name: 'projects', desc: ['Lista de proyectos', 'Project list'], aliases: ['proyectos'] },
+  { name: 'skills', desc: ['Habilidades técnicas', 'Technical skills'], aliases: ['habilidades'] },
+  { name: 'certs', desc: ['Formación y certificaciones', 'Education & certifications'], aliases: ['education', 'formacion'] },
+  { name: 'contact', desc: ['Contacto', 'Contact'], aliases: ['contacto'] },
+  { name: 'help', desc: ['Ayuda y atajos', 'Help & keymaps'], aliases: ['h', 'ayuda'] },
+  { name: 'edit', desc: ['Abrir archivo · :e <ruta>', 'Open file · :e <path>'], aliases: ['e'], arg: 'file' },
+  { name: 'Telescope', desc: ['Buscador difuso de archivos', 'Fuzzy file finder'], aliases: ['find', 'ff'] },
+  { name: 'Neotree', desc: ['Mostrar / ocultar explorador', 'Toggle file explorer'], aliases: ['tree', 'Ex', 'NvimTreeToggle'] },
+  { name: 'colorscheme', desc: ['Cambiar sabor de catppuccin', 'Change catppuccin flavor'], aliases: ['colo'], arg: 'flavor' },
+  { name: 'lang', desc: ['Idioma · es / en', 'Language · en / es'], aliases: ['language', 'idioma'], arg: 'lang' },
+  { name: 'set', desc: ['number · relativenumber · wrap', 'number · relativenumber · wrap'], arg: 'option' },
+  { name: 'bnext', desc: ['Buffer siguiente', 'Next buffer'], aliases: ['bn'] },
+  { name: 'bprevious', desc: ['Buffer anterior', 'Previous buffer'], aliases: ['bp'] },
+  { name: 'bdelete', desc: ['Cerrar buffer', 'Close buffer'], aliases: ['bd'] },
+  { name: 'cv', desc: ['Descargar el CV', 'Download the CV'], aliases: ['resume'] },
+  { name: 'nohlsearch', desc: ['Quitar resaltado de búsqueda', 'Clear search highlight'], aliases: ['noh'] },
+  { name: 'Dashboard', desc: ['Pantalla de inicio', 'Start screen'], aliases: ['home', 'inicio', 'Alpha'] },
+  { name: 'quit', desc: ['Cerrar buffer actual', 'Close current buffer'], aliases: ['q'] },
 ]
 
 export const SET_OPTIONS = [
@@ -37,13 +38,14 @@ export function resolveCommand(name) {
 }
 
 // Devuelve [{ value, label, desc }] para el input actual de la cmdline
-export function complete(input) {
+export function complete(input, lang = 'es') {
+  const li = lang === 'en' ? 1 : 0
   const m = input.match(/^(\S*)(\s+)(.*)$/)
   if (!m) {
     const q = input.toLowerCase()
     return COMMANDS.filter(
       (c) => c.name.toLowerCase().startsWith(q) || c.aliases?.some((a) => a.toLowerCase().startsWith(q) && q),
-    ).map((c) => ({ value: c.name, label: c.name, desc: c.desc, kind: 'cmd' }))
+    ).map((c) => ({ value: c.name, label: c.name, desc: c.desc[li], kind: 'cmd' }))
   }
   const [, cmdName, , arg] = m
   const cmd = resolveCommand(cmdName)
@@ -54,6 +56,11 @@ export function complete(input) {
     opts = Object.values(BUFFERS).map((b) => ({ v: b.path, desc: b.ft, kind: 'file', ft: b.ft }))
   } else if (cmd.arg === 'flavor') {
     opts = FLAVORS.map((f) => ({ v: `catppuccin-${f}`, desc: 'colorscheme', kind: 'flavor' }))
+  } else if (cmd.arg === 'lang') {
+    opts = [
+      { v: 'es', desc: 'español', kind: 'opt' },
+      { v: 'en', desc: 'English', kind: 'opt' },
+    ]
   } else if (cmd.arg === 'option') {
     opts = SET_OPTIONS.map((o) => ({ v: o, desc: 'option', kind: 'opt' }))
   }

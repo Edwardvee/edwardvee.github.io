@@ -1,14 +1,54 @@
-import { profile, experience, projects, skills, education, certifications, languages, contact } from '../data/portfolio'
+import * as esData from '../data/portfolio'
+import * as enData from '../data/portfolio.en'
 import { hl, s, L, blank, md, h, p, li, quote, hr } from './syntax'
 
 const STATUS_CLS = {
   activo: 'text-ctp-green',
+  active: 'text-ctp-green',
   terminado: 'text-ctp-blue',
+  done: 'text-ctp-blue',
   completado: 'text-ctp-green',
+  completed: 'text-ctp-green',
   'en curso': 'text-ctp-yellow',
+  'in progress': 'text-ctp-yellow',
   planeado: 'text-ctp-overlay1',
+  planned: 'text-ctp-overlay1',
 }
-const STATUS_ICON = { completado: '✓', 'en curso': '◐', planeado: '○', activo: '●', terminado: '✓' }
+const STATUS_ICON = {
+  completado: '✓', completed: '✓', 'en curso': '◐', 'in progress': '◐', planeado: '○', planned: '○',
+  activo: '●', active: '●', terminado: '✓', done: '✓',
+}
+
+// textos fijos de los "archivos" en cada idioma
+const TEXT = {
+  es: {
+    open: 'abrir', openProject: 'abrir proyecto', openLink: 'abrir enlace', run: 'ejecutar', downloadCv: 'descargar CV',
+    aboutMe: 'Sobre mí', lookingFor: 'Qué busco', now: 'Ahora mismo', interests: 'Intereses',
+    navAbout: [['→ experiencia', 'experience'], ['proyectos', 'projects'], ['skills', 'skills'], ['certificaciones', 'certs'], ['contacto', 'contact']],
+    present: 'presente', tagOngoing: 'tag: en curso', toProjects: 'proyectos →', toExperience: '← experiencia',
+    projects: 'Proyectos', projectsHint: (n) => `${n} proyectos · pulsa \`<Enter>\` o haz click para abrir uno`,
+    status: 'Estado: ', year: '    Año: ', description: 'Descripción', results: 'Resultados', links: 'Enlaces', index: 'índice',
+    skillsComment: '-- stack técnico, agrupado por área', learning: '"siempre aprendiendo: "',
+    certsComment: '# formación, certificaciones e idiomas',
+    contactTitle: '¿hablamos?', contactHint: '# <Enter> o click sobre una línea para abrir el enlace',
+    cvOnRequest: '"CV disponible bajo petición"', thanks: '"Gracias por pasarte 👋"',
+  },
+  en: {
+    open: 'open', openProject: 'open project', openLink: 'open link', run: 'run', downloadCv: 'download CV',
+    aboutMe: 'About me', lookingFor: "What I'm looking for", now: 'Right now', interests: 'Interests',
+    navAbout: [['→ experience', 'experience'], ['projects', 'projects'], ['skills', 'skills'], ['certifications', 'certs'], ['contact', 'contact']],
+    present: 'present', tagOngoing: 'tag: ongoing', toProjects: 'projects →', toExperience: '← experience',
+    projects: 'Projects', projectsHint: (n) => `${n} projects · press \`<Enter>\` or click to open one`,
+    status: 'Status: ', year: '    Year: ', description: 'Description', results: 'Results', links: 'Links', index: 'index',
+    skillsComment: '-- tech stack, grouped by area', learning: '"always learning: "',
+    certsComment: '# education, certifications and languages',
+    contactTitle: "let's talk", contactHint: '# <Enter> or click on a line to open the link',
+    cvOnRequest: '"CV available on request"', thanks: '"Thanks for stopping by 👋"',
+  },
+}
+
+// datos e idioma activos mientras se construyen los buffers (ver buildBuffers)
+let profile, experience, projects, skills, education, certifications, languages, contact, T, LANG
 
 const pad = (str, n) => str + ' '.repeat(Math.max(0, n - str.length))
 const num2 = (n) => String(n).padStart(2, '0')
@@ -22,7 +62,7 @@ const nav = (links) =>
       ...(i ? [s('  ·  ', hl.dim)] : []),
       s(label, hl.linkLabel, { open: id }),
     ]),
-    { hint: 'abrir' },
+    { hint: T.open },
   )
 
 // ── about.md ────────────────────────────────────────────────────────
@@ -36,30 +76,24 @@ function about() {
     L([s('● ', 'text-ctp-green animate-pulse'), s(profile.status, 'text-ctp-green')], { hang: 2 }),
     L([s('⌖ ', hl.muted), s(profile.location, hl.sub)], { hang: 2 }),
     blank(),
-    h(2, 'Sobre mí'),
+    h(2, T.aboutMe),
     blank(),
     ...profile.about.flatMap((para, i) => [...(i ? [blank()] : []), p(para)]),
     blank(),
-    h(2, 'Qué busco'),
+    h(2, T.lookingFor),
     blank(),
     ...profile.lookingFor.map((x) => li(x)),
     blank(),
-    h(2, 'Ahora mismo'),
+    h(2, T.now),
     blank(),
     ...profile.now.map((x) => li(x, '- [ ]')),
     blank(),
-    h(2, 'Intereses'),
+    h(2, T.interests),
     blank(),
     L(tags(profile.interests)),
     blank(),
     hr(),
-    nav([
-      ['→ experiencia', 'experience'],
-      ['proyectos', 'projects'],
-      ['skills', 'skills'],
-      ['certificaciones', 'certs'],
-      ['contacto', 'contact'],
-    ]),
+    nav(T.navAbout),
   ]
 }
 
@@ -84,7 +118,7 @@ function experienceLog() {
           ...(i === 0
             ? [s(' (', hl.cmd), s('HEAD -> ', 'text-ctp-sky font-bold'), s('main', 'text-ctp-green font-bold'), s(')', hl.cmd)]
             : []),
-          ...(job.dates.includes('presente') ? [s(' (', hl.cmd), s('tag: en curso', 'text-ctp-peach font-bold'), s(')', hl.cmd)] : []),
+          ...(job.dates.includes(T.present) ? [s(' (', hl.cmd), s(T.tagOngoing, 'text-ctp-peach font-bold'), s(')', hl.cmd)] : []),
         ],
         { hang: 2 },
       ),
@@ -98,16 +132,16 @@ function experienceLog() {
     lines.push(L([s(last ? '' : '│', graph)]))
   })
   lines.push(hr())
-  lines.push(nav([['← about', 'about'], ['proyectos →', 'projects']]))
+  lines.push(nav([['← about', 'about'], [T.toProjects, 'projects']]))
   return lines
 }
 
 // ── projects.md ─────────────────────────────────────────────────────
 function projectsIndex() {
   const lines = [
-    h(1, 'Proyectos'),
+    h(1, T.projects),
     blank(),
-    quote(`${projects.length} proyectos · pulsa \`<Enter>\` o haz click para abrir uno`),
+    quote(T.projectsHint(projects.length)),
     blank(),
   ]
   projects.forEach((pr, i) => {
@@ -123,7 +157,7 @@ function projectsIndex() {
           s(`${STATUS_ICON[pr.status] ?? '●'} ${pr.status}`, STATUS_CLS[pr.status] ?? hl.muted),
           s(` · ${pr.year}`, hl.muted),
         ],
-        { hint: 'abrir proyecto' },
+        { hint: T.openProject },
       ),
     )
     lines.push(L([s('   '), ...md(pr.summary, hl.sub)], { hang: 3 }))
@@ -131,7 +165,7 @@ function projectsIndex() {
     lines.push(blank())
   })
   lines.push(hr())
-  lines.push(nav([['← experiencia', 'experience'], ['skills →', 'skills']]))
+  lines.push(nav([[T.toExperience, 'experience'], ['skills →', 'skills']]))
   return lines
 }
 
@@ -145,34 +179,34 @@ function projectPage(pr, i) {
     quote(pr.summary),
     blank(),
     L([
-      s('Estado: ', hl.bold),
+      s(T.status, hl.bold),
       s(`${STATUS_ICON[pr.status] ?? '●'} ${pr.status}`, STATUS_CLS[pr.status] ?? hl.muted),
-      s('    Año: ', hl.bold),
+      s(T.year, hl.bold),
       s(String(pr.year), hl.num),
     ]),
     L([s('Stack:  ', hl.bold), ...tags(pr.stack)], { hang: 8 }),
     blank(),
-    h(2, 'Descripción'),
+    h(2, T.description),
     blank(),
     ...pr.description.flatMap((para, j) => [...(j ? [blank()] : []), p(para)]),
     blank(),
-    h(2, 'Resultados'),
+    h(2, T.results),
     blank(),
     ...pr.highlights.map((x) => li(x)),
     blank(),
-    h(2, 'Enlaces'),
+    h(2, T.links),
     blank(),
     ...pr.links.map((l) =>
       L([s('- ', hl.list), s(`${l.label}: `, hl.text), s(l.href, hl.url, { href: l.href })], {
         hang: 2,
-        hint: 'abrir enlace',
+        hint: T.openLink,
       }),
     ),
     blank(),
     hr(),
     nav([
       ...(prev ? [[`← ${prev.title}`, `projects/${prev.slug}`]] : []),
-      ['índice', 'projects'],
+      [T.index, 'projects'],
       ...(next ? [[`${next.title} →`, `projects/${next.slug}`]] : []),
     ]),
   ]
@@ -184,7 +218,7 @@ const GROUP_COLORS = ['text-ctp-blue', 'text-ctp-red', 'text-ctp-mauve', 'text-c
 function skillsLua() {
   const lines = [
     L([s(`-- ~/${profile.handle}/skills.lua`, hl.comment)]),
-    L([s('-- stack técnico, agrupado por área', hl.comment)]),
+    L([s(T.skillsComment, hl.comment)]),
     blank(),
     L([s('local ', hl.kw), s('M', hl.text), s(' = ', hl.op), s('{}', hl.punct)]),
     blank(),
@@ -211,7 +245,7 @@ function skillsLua() {
   lines.push(
     L([s('function ', hl.kw), s('M', hl.text), s('.', hl.punct), s('learn', hl.fn), s('(', hl.punct), s('topic', hl.variable), s(')', hl.punct)]),
   )
-  lines.push(L([s('│ ', hl.guide), s('return ', hl.kw), s('"siempre aprendiendo: "', hl.str), s(' .. ', hl.op), s('topic', hl.variable)]))
+  lines.push(L([s('│ ', hl.guide), s('return ', hl.kw), s(T.learning, hl.str), s(' .. ', hl.op), s('topic', hl.variable)]))
   lines.push(L([s('end', hl.kw)]))
   lines.push(blank())
   lines.push(L([s('return ', hl.kw), s('M', hl.text)]))
@@ -228,7 +262,7 @@ const yItem = (key, value, valueCls = hl.str) =>
 function certsYaml() {
   const lines = [
     L([s(`# ~/${profile.handle}/certs.yaml`, hl.comment)]),
-    L([s('# formación, certificaciones e idiomas', hl.comment)]),
+    L([s(T.certsComment, hl.comment)]),
     blank(),
     L([s('---', hl.punct)]),
     yk(0, 'education'),
@@ -263,8 +297,8 @@ function contactSh() {
   const width = Math.max(...contact.map((c) => c.key.length))
   const lines = [
     L([s('#!/usr/bin/env bash', hl.comment)]),
-    L([s(`# ~/${profile.handle}/contact.sh — ¿hablamos?`, hl.comment)]),
-    L([s('# <Enter> o click sobre una línea para abrir el enlace', hl.comment)]),
+    L([s(`# ~/${profile.handle}/contact.sh — ${T.contactTitle}`, hl.comment)]),
+    L([s(T.contactHint, hl.comment)]),
     blank(),
     L([s('set ', hl.builtin), s('-euo pipefail', hl.text)]),
     blank(),
@@ -278,7 +312,7 @@ function contactSh() {
           s('=', hl.op),
           s(`"${c.value}"`, c.href ? `${hl.str} hover:underline underline-offset-2` : hl.str, c.href ? { href: c.href } : {}),
         ],
-        { hint: c.href ? 'abrir' : undefined, nowrap: true },
+        { hint: c.href ? T.open : undefined, nowrap: true },
       ),
     )
   })
@@ -290,13 +324,13 @@ function contactSh() {
   lines.push(blank())
   lines.push(L([s('cv', hl.fn), s('() {', hl.punct)]))
   if (profile.cv) {
-    lines.push(L([s('│ ', hl.guide), s('curl ', hl.builtin), s('-O ', hl.text), s(profile.cv, hl.url, { href: profile.cv })], { hint: 'descargar CV' }))
+    lines.push(L([s('│ ', hl.guide), s('curl ', hl.builtin), s('-O ', hl.text), s(profile.cv, hl.url, { href: profile.cv })], { hint: T.downloadCv }))
   } else {
-    lines.push(L([s('│ ', hl.guide), s('echo ', hl.builtin), s('"CV disponible bajo petición"', hl.str)]))
+    lines.push(L([s('│ ', hl.guide), s('echo ', hl.builtin), s(T.cvOnRequest, hl.str)]))
   }
   lines.push(L([s('}', hl.punct)]))
   lines.push(blank())
-  lines.push(L([s('status', hl.fn), s(' && ', hl.op), s('echo ', hl.builtin), s('"Gracias por pasarte 👋"', hl.str)]))
+  lines.push(L([s('status', hl.fn), s(' && ', hl.op), s('echo ', hl.builtin), s(T.thanks, hl.str)]))
   return lines
 }
 
@@ -305,53 +339,109 @@ const helpRule = () => hr('=', hl.muted)
 const helpSection = (title, tag) =>
   L([s(title, 'text-ctp-blue font-bold')], { right: [s(`*${tag}*`, hl.tag)] })
 const helpCmd = (cmd, desc, run = cmd) =>
-  L([s(pad(`:${cmd}`, 22), hl.cmd, { cmd: run }), s(desc, hl.text)], { hang: 22, hint: 'ejecutar' })
+  L([s(pad(`:${cmd}`, 22), hl.cmd, { cmd: run }), s(desc, hl.text)], { hang: 22, hint: T.run })
 const helpKey = (keys, desc) => L([s(pad(keys, 22), hl.key), s(desc, hl.text)], { hang: 22 })
 
+const HELP = {
+  es: {
+    title: (n) => `PORTAFOLIO DE ${n} — MANUAL DE USO`,
+    intro: '1. INTRODUCCIÓN',
+    introText: 'Este portafolio funciona como **Neovim**. Escribe `:` seguido de un comando y pulsa `<Enter>`. ¿No usas Vim? No pasa nada: todo es clicable.',
+    commands: '2. COMANDOS',
+    cmds: [
+      ['about', 'Quién soy'],
+      ['experience', 'Experiencia laboral (git log)'],
+      ['projects', 'Lista de proyectos'],
+      ['skills', 'Habilidades técnicas'],
+      ['certs', 'Formación y certificaciones'],
+      ['contact', 'Cómo contactarme'],
+      ['e {archivo}', 'Abrir un archivo (con <Tab> autocompleta)', 'Telescope'],
+      ['Telescope', 'Buscador difuso de archivos'],
+      ['Neotree', 'Mostrar / ocultar el explorador'],
+      ['colorscheme {sabor}', 'mocha · macchiato · frappe · latte', 'colorscheme catppuccin-latte'],
+      ['lang {es|en}', 'Cambiar idioma / switch to English', 'lang en'],
+      ['set nu / rnu / wrap', 'Opciones del editor', 'set relativenumber!'],
+      ['bn / bp / bd', 'Buffer siguiente / anterior / cerrar', 'bn'],
+      ['cv', 'Descargar el CV'],
+      ['Dashboard', 'Volver a la pantalla de inicio'],
+      ['q', 'Cerrar el buffer actual'],
+    ],
+    mappings: '3. ATAJOS (modo NORMAL)',
+    keys: [
+      ['j / k', 'Bajar / subir una línea (admite cuenta: 5j)'],
+      ['gg / G', 'Ir al principio / al final'],
+      ['<C-d> / <C-u>', 'Media página abajo / arriba'],
+      ['<CR>', 'Abrir el enlace o archivo de la línea'],
+      ['H / L', 'Buffer anterior / siguiente'],
+      ['/  n  N', 'Buscar en el buffer y saltar entre resultados'],
+      ['<Space>', 'Menú de atajos (which-key)'],
+      ['<C-p>  <Space>ff', 'Telescope'],
+      ['<C-n>  <Space>e', 'Explorador de archivos'],
+      ['?', 'Esta ayuda'],
+      ['<Esc>', 'Cancelar / cerrar ventanas flotantes'],
+    ],
+  },
+  en: {
+    title: (n) => `${n}'S PORTFOLIO — USER MANUAL`,
+    intro: '1. INTRODUCTION',
+    introText: "This portfolio works like **Neovim**. Type `:` followed by a command and press `<Enter>`. Don't use Vim? No problem: everything is clickable.",
+    commands: '2. COMMANDS',
+    cmds: [
+      ['about', 'Who I am'],
+      ['experience', 'Work experience (git log)'],
+      ['projects', 'Project list'],
+      ['skills', 'Technical skills'],
+      ['certs', 'Education and certifications'],
+      ['contact', 'How to reach me'],
+      ['e {file}', 'Open a file (<Tab> autocompletes)', 'Telescope'],
+      ['Telescope', 'Fuzzy file finder'],
+      ['Neotree', 'Show / hide the file explorer'],
+      ['colorscheme {flavor}', 'mocha · macchiato · frappe · latte', 'colorscheme catppuccin-latte'],
+      ['lang {en|es}', 'Switch language / cambiar a español', 'lang es'],
+      ['set nu / rnu / wrap', 'Editor options', 'set relativenumber!'],
+      ['bn / bp / bd', 'Next / previous / close buffer', 'bn'],
+      ['cv', 'Download the CV'],
+      ['Dashboard', 'Back to the start screen'],
+      ['q', 'Close the current buffer'],
+    ],
+    mappings: '3. KEYMAPS (NORMAL mode)',
+    keys: [
+      ['j / k', 'Move down / up one line (counts work: 5j)'],
+      ['gg / G', 'Go to top / bottom'],
+      ['<C-d> / <C-u>', 'Half page down / up'],
+      ['<CR>', 'Open the link or file on the line'],
+      ['H / L', 'Previous / next buffer'],
+      ['/  n  N', 'Search the buffer and jump between matches'],
+      ['<Space>', 'Keymap menu (which-key)'],
+      ['<C-p>  <Space>ff', 'Telescope'],
+      ['<C-n>  <Space>e', 'File explorer'],
+      ['?', 'This help'],
+      ['<Esc>', 'Cancel / close floating windows'],
+    ],
+  },
+}
+
 function helpTxt() {
+  const H = HELP[LANG]
   return [
-    L([s('*portfolio.txt*', hl.tag)], { right: [s('Para Neovim · catppuccin', hl.muted)] }),
+    L([s('*portfolio.txt*', hl.tag)], { right: [s('Neovim · catppuccin', hl.muted)] }),
     blank(),
-    L([s(`PORTAFOLIO DE ${profile.name.toUpperCase()} — MANUAL DE USO`, 'text-ctp-mauve font-bold')]),
-    blank(),
-    helpRule(),
-    helpSection('1. INTRODUCCIÓN', 'intro'),
-    blank(),
-    p('Este portafolio funciona como **Neovim**. Escribe `:` seguido de un comando y pulsa `<Enter>`. ¿No usas Vim? No pasa nada: todo es clicable.'),
+    L([s(H.title(profile.name.toUpperCase()), 'text-ctp-mauve font-bold')]),
     blank(),
     helpRule(),
-    helpSection('2. COMANDOS', 'commands'),
+    helpSection(H.intro, 'intro'),
     blank(),
-    helpCmd('about', 'Quién soy'),
-    helpCmd('experience', 'Experiencia laboral (git log)'),
-    helpCmd('projects', 'Lista de proyectos'),
-    helpCmd('skills', 'Habilidades técnicas'),
-    helpCmd('certs', 'Formación y certificaciones'),
-    helpCmd('contact', 'Cómo contactarme'),
-    helpCmd('e {archivo}', 'Abrir un archivo (con <Tab> autocompleta)', 'Telescope'),
-    helpCmd('Telescope', 'Buscador difuso de archivos'),
-    helpCmd('Neotree', 'Mostrar / ocultar el explorador'),
-    helpCmd('colorscheme {sabor}', 'mocha · macchiato · frappe · latte', 'colorscheme catppuccin-latte'),
-    helpCmd('set nu / rnu / wrap', 'Opciones del editor', 'set relativenumber!'),
-    helpCmd('bn / bp / bd', 'Buffer siguiente / anterior / cerrar', 'bn'),
-    helpCmd('cv', 'Descargar el CV'),
-    helpCmd('Dashboard', 'Volver a la pantalla de inicio'),
-    helpCmd('q', 'Cerrar el buffer actual'),
+    p(H.introText),
     blank(),
     helpRule(),
-    helpSection('3. ATAJOS (modo NORMAL)', 'mappings'),
+    helpSection(H.commands, 'commands'),
     blank(),
-    helpKey('j / k', 'Bajar / subir una línea (admite cuenta: 5j)'),
-    helpKey('gg / G', 'Ir al principio / al final'),
-    helpKey('<C-d> / <C-u>', 'Media página abajo / arriba'),
-    helpKey('<CR>', 'Abrir el enlace o archivo de la línea'),
-    helpKey('H / L', 'Buffer anterior / siguiente'),
-    helpKey('/  n  N', 'Buscar en el buffer y saltar entre resultados'),
-    helpKey('<Space>', 'Menú de atajos (which-key)'),
-    helpKey('<C-p>  <Space>ff', 'Telescope'),
-    helpKey('<C-n>  <Space>e', 'Explorador de archivos'),
-    helpKey('?', 'Esta ayuda'),
-    helpKey('<Esc>', 'Cancelar / cerrar ventanas flotantes'),
+    ...H.cmds.map(([cmd, desc, run]) => helpCmd(cmd, desc, run)),
+    blank(),
+    helpRule(),
+    helpSection(H.mappings, 'mappings'),
+    blank(),
+    ...H.keys.map(([k, desc]) => helpKey(k, desc)),
     blank(),
     helpRule(),
     L([s(' vim:tw=78:ts=8:ft=help:norl:', hl.muted)]),
@@ -359,7 +449,11 @@ function helpTxt() {
 }
 
 // ── Registro de buffers ─────────────────────────────────────────────
-export function buildBuffers() {
+export function buildBuffers(lang = 'es') {
+  const d = lang === 'en' ? enData : esData
+  ;({ profile, experience, projects, skills, education, certifications, languages, contact } = d)
+  T = TEXT[lang]
+  LANG = lang
   const list = [
     { id: 'about', path: 'about.md', ft: 'markdown', lines: about() },
     { id: 'experience', path: 'experience.log', ft: 'git', lines: experienceLog() },
@@ -385,7 +479,9 @@ export function buildBuffers() {
   return byId
 }
 
-export const BUFFERS = buildBuffers()
+// los ids y rutas son iguales en ambos idiomas; solo cambia el contenido
+export const BUFFERS_BY_LANG = { es: buildBuffers('es'), en: buildBuffers('en') }
+export const BUFFERS = BUFFERS_BY_LANG.es
 export const BUFFER_IDS = Object.keys(BUFFERS)
 
 // Resuelve "about", "about.md", "projects/pyscan", "pyscan.md"…

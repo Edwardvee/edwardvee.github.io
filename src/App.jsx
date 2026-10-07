@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { User, Briefcase, FolderGit2, Wrench, Award, Mail, Search, CircleHelp, Palette, ChevronRight, Terminal, Menu } from 'lucide-react'
 import { profile } from './data/portfolio'
-import { BUFFERS, resolveBuffer } from './lib/buffers'
+import { BUFFERS, BUFFERS_BY_LANG, resolveBuffer } from './lib/buffers'
 import { FLAVORS, resolveCommand } from './lib/commands'
 import Tabline from './components/Tabline'
 import Sidebar from './components/Sidebar'
@@ -14,6 +14,7 @@ import WhichKey from './components/WhichKey'
 import Notifications from './components/Notifications'
 import SecretPlayer from './components/SecretPlayer'
 import { FileIcon } from './components/Icons'
+import { LANGS, LangContext, UI, detectLang } from './i18n'
 
 const DASH = 'dashboard'
 const HALF_PAGE = 15
@@ -63,11 +64,16 @@ export default function App() {
   const [pending, setPending] = useState('')
   const [dashSel, setDashSel] = useState(0)
   const [secret, setSecret] = useState(false)
+  const [lang, setLang] = useState(detectLang)
+  const t = UI[lang]
+  const B = BUFFERS_BY_LANG[lang]
+  const langRef = useRef(lang)
+  langRef.current = lang
   const historyRef = useRef([])
   const pendingRef = useRef('')
   const noteId = useRef(0)
 
-  const buffer = current === DASH ? null : BUFFERS[current]
+  const buffer = current === DASH ? null : B[current]
   const cursor = cursors[current] ?? 0
 
   // ── tema ──────────────────────────────────────────────────────────
@@ -77,6 +83,17 @@ export default function App() {
     const base = getComputedStyle(document.documentElement).getPropertyValue('--ctp-base').trim()
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', base)
   }, [flavor])
+
+  // ── idioma ────────────────────────────────────────────────────────
+  useEffect(() => {
+    document.documentElement.lang = lang
+  }, [lang])
+
+  const switchLang = (next) => {
+    setLang(next)
+    store.set('lang', next)
+    setMessage({ text: UI[next].langSwitched, level: 'info' })
+  }
 
   // ── URL + título ─────────────────────────────────────────────────
   useEffect(() => {
@@ -88,7 +105,7 @@ export default function App() {
   // ── bienvenida ───────────────────────────────────────────────────
   useEffect(() => {
     const t = setTimeout(
-      () => notify('info', `Bienvenido 👋`, 'Escribe : para usar comandos, pulsa <Espacio> para el menú o ? para la ayuda. También puedes hacer click en todo.'),
+      () => notify('info', UI[langRef.current].welcomeTitle, UI[langRef.current].welcome),
       700,
     )
     return () => clearTimeout(t)
@@ -121,7 +138,7 @@ export default function App() {
   }
 
   const openBuffer = useCallback((id) => {
-    const b = BUFFERS[id]
+    const b = BUFFERS_BY_LANG[langRef.current][id]
     if (!b) return
     setOpenIds((ids) => (ids.includes(id) ? ids : [...ids, id]))
     setCurrent(id)
@@ -205,16 +222,16 @@ export default function App() {
 
     // easter eggs
     if (['w', 'write', 'wq', 'x', 'wqa', 'wa', 'xa'].includes(lower)) {
-      if (bang) return notify('warn', 'Solo lectura', 'Buen intento. Este portafolio no se puede modificar 🔒')
+      if (bang) return notify('warn', t.readonlyTitle, t.readonlyBang)
       return err("E45: 'readonly' option is set (add ! to override)")
     }
     if (['qa', 'qall', 'quitall', 'exit'].includes(lower) || (bang && ['q', 'quit'].includes(lower)) || ((lower === 'q' || lower === 'quit') && current === DASH)) {
-      return notify('info', '¿Salir de Vim?', 'Nadie ha conseguido salir de Vim jamás. Mejor quédate y echa un vistazo a :projects 😉')
+      return notify('info', t.quitTitle, t.quit)
     }
     if (lower === 'sudo') return notify('error', 'sudo', `${profile.handle} is not in the sudoers file. This incident will be reported. 🚨`)
     if (['nmap', 'hack', 'hydra', 'msfconsole'].includes(lower))
-      return notify('warn', lower, 'Escaneando… 1 host activo: tú 👀  Recuerda: solo con autorización por escrito.')
-    if (lower === 'rm') return notify('error', 'rm', 'Permission denied. Me tomo la seguridad en serio 🛡️')
+      return notify('warn', lower, t.scan)
+    if (lower === 'rm') return notify('error', 'rm', t.rm)
     if (lower === 'clear' || lower === 'cls') return setMessage(null)
     if (lower === 'secret') {
       echo('🤫')
@@ -251,11 +268,17 @@ export default function App() {
         setFlavor(flav)
         return echo(`colorscheme catppuccin-${flav}`)
       }
+      case 'lang': {
+        if (!arg) return switchLang(lang === 'es' ? 'en' : 'es')
+        const next = arg.toLowerCase().slice(0, 2)
+        if (!LANGS.includes(next)) return err(`E474: Invalid argument: ${arg} (es | en)`)
+        return switchLang(next)
+      }
       case 'set': {
         const m = arg.match(/^(no)?(\w+)(!)?$/)
         const alias = { nu: 'number', number: 'number', rnu: 'relativenumber', relativenumber: 'relativenumber', wrap: 'wrap' }
         const opt = m && alias[m[2]]
-        if (!opt) return err(`E518: Unknown option: ${arg || '(vacío)'}`)
+        if (!opt) return err(`E518: Unknown option: ${arg || '(empty)'}`)
         setSettings((s) => ({ ...s, [opt]: m[3] ? !s[opt] : !m[1] }))
         return
       }
@@ -268,7 +291,7 @@ export default function App() {
         return closeBuffer()
       case 'cv':
         if (profile.cv) return window.open(profile.cv, '_blank', 'noopener')
-        return notify('info', 'CV', 'Disponible bajo petición. Escríbeme desde :contact 📬')
+        return notify('info', 'CV', t.cvOnRequest)
       case 'nohlsearch':
         return setSearch('')
       case 'Dashboard':
@@ -291,56 +314,59 @@ export default function App() {
   // ── dashboard ────────────────────────────────────────────────────
   const dashItems = useMemo(
     () => [
-      { key: 'a', label: 'Sobre mí', icon: User, color: 'text-ctp-blue', run: () => openBuffer('about') },
-      { key: 'x', label: 'Experiencia', icon: Briefcase, color: 'text-ctp-red', run: () => openBuffer('experience') },
-      { key: 'p', label: 'Proyectos', icon: FolderGit2, color: 'text-ctp-peach', run: () => openBuffer('projects') },
-      { key: 's', label: 'Skills', icon: Wrench, color: 'text-ctp-mauve', run: () => openBuffer('skills') },
-      { key: 'e', label: 'Formación y certificaciones', icon: Award, color: 'text-ctp-yellow', run: () => openBuffer('certs') },
-      { key: 'c', label: 'Contacto', icon: Mail, color: 'text-ctp-green', run: () => openBuffer('contact') },
-      { key: 'f', label: 'Buscar archivo', icon: Search, color: 'text-ctp-sky', run: () => setMode('INSERT') },
-      { key: 't', label: 'Cambiar tema', icon: Palette, color: 'text-ctp-pink', run: () => cycleFlavor() },
-      { key: '?', label: 'Ayuda y comandos', icon: CircleHelp, color: 'text-ctp-teal', run: () => openBuffer('help') },
+      { key: 'a', label: t.dash.about, icon: User, color: 'text-ctp-blue', run: () => openBuffer('about') },
+      { key: 'x', label: t.dash.experience, icon: Briefcase, color: 'text-ctp-red', run: () => openBuffer('experience') },
+      { key: 'p', label: t.dash.projects, icon: FolderGit2, color: 'text-ctp-peach', run: () => openBuffer('projects') },
+      { key: 's', label: t.dash.skills, icon: Wrench, color: 'text-ctp-mauve', run: () => openBuffer('skills') },
+      { key: 'e', label: t.dash.certs, icon: Award, color: 'text-ctp-yellow', run: () => openBuffer('certs') },
+      { key: 'c', label: t.dash.contact, icon: Mail, color: 'text-ctp-green', run: () => openBuffer('contact') },
+      { key: 'f', label: t.dash.find, icon: Search, color: 'text-ctp-sky', run: () => setMode('INSERT') },
+      { key: 't', label: t.dash.theme, icon: Palette, color: 'text-ctp-pink', run: () => cycleFlavor() },
+      { key: '?', label: t.dash.help, icon: CircleHelp, color: 'text-ctp-teal', run: () => openBuffer('help') },
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [openBuffer, flavor],
+    [openBuffer, flavor, lang],
   )
 
   // ── which-key ────────────────────────────────────────────────────
+  const lk = t.leader
   const leaderTree = {
     children: {
-      e: { label: 'Explorador', run: () => setSidebar((v) => !v) },
+      e: { label: lk.explorer, run: () => setSidebar((v) => !v) },
       f: {
-        label: 'find',
+        label: lk.find,
         children: {
-          f: { label: 'Buscar archivos', run: () => setMode('INSERT') },
-          s: { label: 'Buscar en el buffer', run: () => setMode('SEARCH') },
+          f: { label: lk.findFiles, run: () => setMode('INSERT') },
+          s: { label: lk.findBuffer, run: () => setMode('SEARCH') },
         },
       },
-      a: { label: 'Sobre mí', run: () => openBuffer('about') },
-      x: { label: 'Experiencia', run: () => openBuffer('experience') },
-      p: { label: 'Proyectos', run: () => openBuffer('projects') },
-      s: { label: 'Skills', run: () => openBuffer('skills') },
-      t: { label: 'Certificaciones', run: () => openBuffer('certs') },
-      c: { label: 'Contacto', run: () => openBuffer('contact') },
+      a: { label: lk.about, run: () => openBuffer('about') },
+      x: { label: lk.experience, run: () => openBuffer('experience') },
+      p: { label: lk.projects, run: () => openBuffer('projects') },
+      s: { label: lk.skills, run: () => openBuffer('skills') },
+      t: { label: lk.certs, run: () => openBuffer('certs') },
+      c: { label: lk.contact, run: () => openBuffer('contact') },
       b: {
-        label: 'buffer',
+        label: lk.buffer,
         children: {
-          n: { label: 'Siguiente', run: () => cycleBuffer(1) },
-          p: { label: 'Anterior', run: () => cycleBuffer(-1) },
-          d: { label: 'Cerrar', run: () => closeBuffer() },
+          n: { label: lk.next, run: () => cycleBuffer(1) },
+          p: { label: lk.prev, run: () => cycleBuffer(-1) },
+          d: { label: lk.close, run: () => closeBuffer() },
         },
       },
       u: {
-        label: 'ui',
+        label: lk.ui,
         children: {
-          c: { label: 'Cambiar colorscheme', run: cycleFlavor },
-          n: { label: 'Números relativos', run: () => setSettings((s) => ({ ...s, relativenumber: !s.relativenumber })) },
-          w: { label: 'Ajuste de línea', run: () => setSettings((s) => ({ ...s, wrap: !s.wrap })) },
+          c: { label: lk.colorscheme, run: cycleFlavor },
+          l: { label: lk.lang, run: () => switchLang(lang === 'es' ? 'en' : 'es') },
+          n: { label: lk.relnum, run: () => setSettings((s) => ({ ...s, relativenumber: !s.relativenumber })) },
+          w: { label: lk.wrap, run: () => setSettings((s) => ({ ...s, wrap: !s.wrap })) },
         },
       },
-      ':': { label: 'Línea de comandos', run: () => setMode('COMMAND') },
-      h: { label: 'Dashboard', run: () => setCurrent(DASH) },
-      '?': { label: 'Ayuda', run: () => openBuffer('help') },
+      l: { label: lk.lang, run: () => switchLang(lang === 'es' ? 'en' : 'es') },
+      ':': { label: lk.cmdline, run: () => setMode('COMMAND') },
+      h: { label: lk.dashboard, run: () => setCurrent(DASH) },
+      '?': { label: lk.help, run: () => openBuffer('help') },
     },
   }
   const leaderNode = leader?.reduce((node, k) => node.children[k], leaderTree)
@@ -520,7 +546,7 @@ export default function App() {
           err(readonlyErr)
           break
         case 'q':
-          echo('recording @… es broma, este buffer es de solo lectura 😄')
+          echo(t.recording)
           break
         default:
           return
@@ -535,9 +561,10 @@ export default function App() {
   const crumbs = buffer ? [`~/${profile.handle}`, 'portfolio', ...buffer.path.split('/')] : []
 
   return (
+    <LangContext.Provider value={lang}>
     <div className="relative flex h-dvh flex-col overflow-hidden bg-ctp-base font-mono text-ctp-text">
       <Tabline
-        buffers={BUFFERS}
+        buffers={B}
         openIds={openIds}
         current={current}
         onSelect={openBuffer}
@@ -548,7 +575,7 @@ export default function App() {
 
       <div className="relative flex min-h-0 flex-1">
         {sidebar && (
-          <Sidebar buffers={BUFFERS} current={current} onOpen={openBuffer} onClose={() => setSidebar(false)} handle={profile.handle} />
+          <Sidebar buffers={B} current={current} onOpen={openBuffer} onClose={() => setSidebar(false)} handle={profile.handle} />
         )}
 
         <main className="flex min-w-0 flex-1 flex-col text-[13px] sm:text-sm">
@@ -607,14 +634,14 @@ export default function App() {
           <div className="absolute right-3 bottom-3 z-20 flex flex-col gap-2 lg:hidden">
             <button
               onClick={() => setLeader([])}
-              aria-label="Menú de atajos"
+              aria-label={t.menuAria}
               className="grid size-11 place-items-center rounded-full border border-ctp-surface1 bg-ctp-mantle text-ctp-mauve shadow-lg shadow-ctp-crust/50"
             >
               <Menu size={18} />
             </button>
             <button
               onClick={() => setMode('COMMAND')}
-              aria-label="Línea de comandos"
+              aria-label={t.cmdAria}
               className="grid size-11 place-items-center rounded-full bg-ctp-peach text-ctp-crust shadow-lg shadow-ctp-crust/50"
             >
               <Terminal size={18} strokeWidth={2.5} />
@@ -640,7 +667,7 @@ export default function App() {
 
       {mode === 'INSERT' && (
         <Telescope
-          buffers={BUFFERS}
+          buffers={B}
           onOpen={(id) => {
             setMode('NORMAL')
             openBuffer(id)
@@ -649,5 +676,6 @@ export default function App() {
         />
       )}
     </div>
+    </LangContext.Provider>
   )
 }

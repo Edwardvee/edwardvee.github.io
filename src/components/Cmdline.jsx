@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Command, Palette, Settings2 } from 'lucide-react'
 import { complete } from '../lib/commands'
 import { FileIcon } from './Icons'
+import { useLang, useT } from '../i18n'
 
 const MSG_CLS = { error: 'text-ctp-red', warn: 'text-ctp-yellow', info: 'text-ctp-text' }
 
@@ -13,11 +14,13 @@ function KindIcon({ item }) {
 }
 
 function Prompt({ prefix, history, onSubmit, onCancel }) {
+  const lang = useLang()
+  const t = useT()
   const [base, setBase] = useState('')
   const [sel, setSel] = useState(-1)
   const [hist, setHist] = useState(-1)
   const inputRef = useRef(null)
-  const items = useMemo(() => (prefix === ':' ? complete(base).slice(0, 10) : []), [base, prefix])
+  const items = useMemo(() => (prefix === ':' ? complete(base, lang).slice(0, 10) : []), [base, prefix, lang])
   const value = sel >= 0 && items[sel] ? items[sel].value : base
 
   useEffect(() => {
@@ -100,7 +103,7 @@ function Prompt({ prefix, history, onSubmit, onCancel }) {
         autoComplete="off"
         autoCorrect="off"
         enterKeyHint="go"
-        aria-label={prefix === ':' ? 'Línea de comandos' : 'Buscar'}
+        aria-label={prefix === ':' ? t.cmdAria : '/'}
         className="h-full min-w-0 flex-1 bg-transparent text-ctp-text caret-ctp-rosewater outline-none"
       />
     </div>
@@ -108,6 +111,7 @@ function Prompt({ prefix, history, onSubmit, onCancel }) {
 }
 
 export default function Cmdline({ mode, message, pending, history, onSubmit, onCancel, onHelp }) {
+  const [h0, h1, h2, h3, h4] = useT().cmdHint
   const active = mode === 'COMMAND' || mode === 'SEARCH'
   return (
     <div className="flex h-6 shrink-0 items-center bg-ctp-base px-2 text-[13px] leading-6">
@@ -126,8 +130,11 @@ export default function Cmdline({ mode, message, pending, history, onSubmit, onC
               message.text
             ) : (
               <button onClick={onHelp} className="hidden text-ctp-overlay0 hover:text-ctp-subtext0 sm:inline">
-                escribe <span className="text-ctp-peach">:help</span> y pulsa{' '}
-                <span className="text-ctp-peach">&lt;Enter&gt;</span> para ver los comandos
+                {h0}
+                <span className="text-ctp-peach">{h1}</span>
+                {h2}
+                <span className="text-ctp-peach">{h3}</span>
+                {h4}
               </button>
             )}
           </div>

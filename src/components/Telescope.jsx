@@ -3,6 +3,7 @@ import { Search } from 'lucide-react'
 import { fuzzy } from '../lib/commands'
 import { FileIcon } from './Icons'
 import LineContent from './LineContent'
+import { useT } from '../i18n'
 
 function Panel({ title, className = '', children }) {
   return (
@@ -26,6 +27,7 @@ function Highlighted({ text, idx }) {
 
 // telescope.nvim — find_files
 export default function Telescope({ buffers, onOpen, onClose }) {
+  const t = useT()
   const [query, setQuery] = useState('')
   const [sel, setSel] = useState(0)
   const inputRef = useRef(null)
@@ -89,7 +91,7 @@ export default function Telescope({ buffers, onOpen, onClose }) {
                   setSel(0)
                 }}
                 onKeyDown={onKeyDown}
-                placeholder="Busca un archivo…"
+                placeholder={t.tsPlaceholder}
                 spellCheck={false}
                 autoCapitalize="off"
                 className="min-w-0 flex-1 bg-transparent text-ctp-text caret-ctp-rosewater outline-none placeholder:text-ctp-overlay0"
@@ -101,7 +103,7 @@ export default function Telescope({ buffers, onOpen, onClose }) {
           </Panel>
           <Panel title="Results" className="min-h-0 flex-1">
             <div className="h-full overflow-y-auto py-2">
-              {results.length === 0 && <div className="px-3 text-ctp-overlay1">Sin resultados</div>}
+              {results.length === 0 && <div className="px-3 text-ctp-overlay1">{t.tsEmpty}</div>}
               {results.map((r, i) => (
                 <div
                   key={r.b.id}
